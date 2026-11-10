@@ -8,8 +8,9 @@ use App\Http\Controllers\ShopOwner\ListingController;
 use App\Http\Controllers\ShopOwner\ProductController as ShopOwnerProductController;
 use App\Http\Controllers\StorefrontController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
-Route::redirect('/', '/login')->name('home');
+Route::get('/', fn () => Inertia::render('welcome'))->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
