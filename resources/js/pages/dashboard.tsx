@@ -140,7 +140,7 @@ export default function Dashboard() {
                         <div className="absolute -bottom-32 left-1/3 size-80 rounded-full bg-white/10 blur-3xl" />
                         <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
                             <div className="max-w-2xl space-y-5">
-                                <Badge className="border-white/20 bg-white/10 text-white hover:bg-white/20">
+                                <Badge className="border-amber-300/30 bg-amber-300/10 text-amber-200 hover:bg-amber-300/20">
                                     <Sparkles /> {content.badge}
                                 </Badge>
                                 <div className="space-y-3">
@@ -159,7 +159,7 @@ export default function Dashboard() {
                                 asChild
                                 size="lg"
                                 variant="secondary"
-                                className="group w-full border border-white/15 bg-zinc-800 text-white hover:bg-zinc-700 lg:w-auto dark:border-white/15 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700"
+                                className="group w-full border border-amber-300/30 bg-amber-400 text-zinc-950 hover:bg-amber-300 lg:w-auto dark:border-amber-300/30 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
                             >
                                 <Link href={content.action.href}>
                                     {content.action.label}
