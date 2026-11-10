@@ -9,6 +9,13 @@ A Laravel 13, Inertia React 3 and shadcn/ui application for managing shops, a sh
 - Node.js 20+
 - MySQL or another Laravel-supported relational database
 
+## Clone project
+
+```bash
+git clone https://github.com/AnowarDotDev/ecommerce-management.git
+cd ecommerce-management
+```
+
 ## Setup
 
 ```bash
