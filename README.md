@@ -40,8 +40,9 @@ The seeders create these accounts with the default factory password `password`:
 | ---------- | ------------------- | ---------- |
 | Admin      | `admin@example.com` | `password` |
 | Shop Owner | `owner@example.com` | `password` |
+| Customer   | `customer@example.com` | `password` |
 
-Customer accounts are created through the registration form. Every newly registered user automatically receives the `customer` role after registration and email verification.
+Customer accounts can use the seeded credentials above, or be created through the registration form. Every newly registered user automatically receives the `customer` role after registration and email verification.
 
 ## Customer storefront flow
 

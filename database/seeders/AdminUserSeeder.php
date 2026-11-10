@@ -18,5 +18,12 @@ class AdminUserSeeder extends Seeder
         ]);
 
         $admin->assignRole('admin');
+
+        $customer = User::factory()->create([
+            'name' => 'Customer User',
+            'email' => 'customer@example.com',
+        ]);
+
+        $customer->assignRole('customer');
     }
 }
