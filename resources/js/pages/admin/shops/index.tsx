@@ -1,12 +1,15 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { useState, type FormEvent } from 'react';
 import ShopController from '@/actions/App/Http/Controllers/Admin/ShopController';
+import AdminListToolbar from '@/components/admin-list-toolbar';
 import DeleteConfirmation from '@/components/delete-confirmation';
 import Heading from '@/components/heading';
+import Pagination, { type PaginationData } from '@/components/pagination';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import {
     Table,
     TableBody,
@@ -25,9 +28,31 @@ type Shop = {
     logo_url?: string | null;
     owner: { name: string };
 };
-type Props = { shops: { data: Shop[] } };
+type Props = { shops: PaginationData & { data: Shop[] }; search: string };
 
-export default function ShopsIndex({ shops }: Props) {
+export default function ShopsIndex({ shops, search: initialSearch }: Props) {
+    const [search, setSearch] = useState(initialSearch);
+
+    const submitSearch = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const query = search.trim();
+
+        router.get(ShopController.index().url, query ? { search: query } : {}, {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
+        });
+    };
+
+    const clearSearch = () => {
+        setSearch('');
+        router.get(
+            ShopController.index().url,
+            {},
+            { preserveScroll: true, preserveState: true, replace: true },
+        );
+    };
+
     return (
         <>
             <Head title="Shops" />
@@ -44,6 +69,15 @@ export default function ShopsIndex({ shops }: Props) {
                     </Button>
                 </div>
                 <Card>
+                    <div className="border-b p-4">
+                        <AdminListToolbar
+                            search={search}
+                            placeholder="Search shops or owners..."
+                            onSearchChange={setSearch}
+                            onSubmit={submitSearch}
+                            onClear={clearSearch}
+                        />
+                    </div>
                     <CardContent className="p-0">
                         <Table>
                             <TableHeader>
@@ -84,17 +118,21 @@ export default function ShopsIndex({ shops }: Props) {
                                         </TableCell>
                                         <TableCell>{shop.owner.name}</TableCell>
                                         <TableCell>
-                                            <Badge
-                                                variant={
-                                                    shop.is_active
-                                                        ? 'default'
-                                                        : 'secondary'
+                                            <Switch
+                                                pressed={shop.is_active}
+                                                aria-label={`${shop.is_active ? 'Deactivate' : 'Activate'} ${shop.name}`}
+                                                onPressedChange={() =>
+                                                    router.patch(
+                                                        ShopController.toggleStatus(
+                                                            shop,
+                                                        ).url,
+                                                        {},
+                                                        {
+                                                            preserveScroll: true,
+                                                        },
+                                                    )
                                                 }
-                                            >
-                                                {shop.is_active
-                                                    ? 'Active'
-                                                    : 'Inactive'}
-                                            </Badge>
+                                            />
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">
@@ -140,6 +178,7 @@ export default function ShopsIndex({ shops }: Props) {
                             </p>
                         )}
                     </CardContent>
+                    <Pagination data={shops} />
                 </Card>
             </div>
         </>

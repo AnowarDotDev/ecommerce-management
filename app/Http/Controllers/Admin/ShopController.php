@@ -9,6 +9,7 @@ use App\Models\Shop;
 use App\Models\User;
 use App\Repositories\Contracts\ShopRepositoryInterface;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -19,9 +20,10 @@ class ShopController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(ShopRepositoryInterface $shops): Response
+    public function index(Request $request, ShopRepositoryInterface $shops): Response
     {
-        $paginatedShops = $shops->paginate();
+        $search = trim((string) $request->query('search', ''));
+        $paginatedShops = $shops->paginate(search: $search);
         $paginatedShops->getCollection()->transform(function (Shop $shop): Shop {
             $shop->setAttribute(
                 'logo_url',
@@ -33,6 +35,7 @@ class ShopController extends Controller
 
         return Inertia::render('admin/shops/index', [
             'shops' => $paginatedShops,
+            'search' => $search,
         ]);
     }
 
@@ -60,6 +63,25 @@ class ShopController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Shop created successfully.']);
 
         return to_route('admin.shops.index');
+    }
+
+    /**
+     * Toggle whether the shop is visible in the storefront.
+     */
+    public function toggleStatus(Shop $shop, ShopRepositoryInterface $shops): RedirectResponse
+    {
+        Gate::authorize('update', $shop);
+
+        $shops->update($shop, ['is_active' => ! $shop->is_active]);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => $shop->is_active
+                ? 'Shop activated successfully.'
+                : 'Shop deactivated successfully.',
+        ]);
+
+        return back();
     }
 
     /**

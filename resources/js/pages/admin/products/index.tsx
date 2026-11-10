@@ -1,8 +1,11 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { useState, type FormEvent } from 'react';
 import ProductController from '@/actions/App/Http/Controllers/Admin/ProductController';
+import AdminListToolbar from '@/components/admin-list-toolbar';
 import DeleteConfirmation from '@/components/delete-confirmation';
 import Heading from '@/components/heading';
+import Pagination, { type PaginationData } from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -25,9 +28,34 @@ type Product = {
     thumbnail_url?: string | null;
     creator: { name: string };
 };
-type Props = { products: { data: Product[] } };
+type Props = { products: PaginationData & { data: Product[] }; search: string };
 
-export default function ProductsIndex({ products }: Props) {
+export default function ProductsIndex({
+    products,
+    search: initialSearch,
+}: Props) {
+    const [search, setSearch] = useState(initialSearch);
+
+    const submitSearch = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const query = search.trim();
+
+        router.get(
+            ProductController.index().url,
+            query ? { search: query } : {},
+            { preserveScroll: true, preserveState: true, replace: true },
+        );
+    };
+
+    const clearSearch = () => {
+        setSearch('');
+        router.get(
+            ProductController.index().url,
+            {},
+            { preserveScroll: true, preserveState: true, replace: true },
+        );
+    };
+
     return (
         <>
             <Head title="Products" />
@@ -44,6 +72,15 @@ export default function ProductsIndex({ products }: Props) {
                     </Button>
                 </div>
                 <Card>
+                    <div className="border-b p-4">
+                        <AdminListToolbar
+                            search={search}
+                            placeholder="Search products or creators..."
+                            onSearchChange={setSearch}
+                            onSubmit={submitSearch}
+                            onClear={clearSearch}
+                        />
+                    </div>
                     <CardContent className="p-0">
                         <Table>
                             <TableHeader>
@@ -149,6 +186,7 @@ export default function ProductsIndex({ products }: Props) {
                             </p>
                         )}
                     </CardContent>
+                    <Pagination data={products} />
                 </Card>
             </div>
         </>

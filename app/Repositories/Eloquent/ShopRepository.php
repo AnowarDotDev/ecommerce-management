@@ -9,9 +9,24 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ShopRepository implements ShopRepositoryInterface
 {
     /** @return LengthAwarePaginator<int, Shop> */
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    public function paginate(int $perPage = 15, ?string $search = null): LengthAwarePaginator
     {
-        return Shop::query()->with('owner')->latest('id')->paginate($perPage);
+        $query = Shop::query()->with('owner');
+
+        if ($search !== null && $search !== '') {
+            $searchTerm = "%{$search}%";
+
+            $query->where(function ($query) use ($searchTerm): void {
+                $query->where('name', 'like', $searchTerm)
+                    ->orWhere('slug', 'like', $searchTerm)
+                    ->orWhereHas('owner', function ($query) use ($searchTerm): void {
+                        $query->where('name', 'like', $searchTerm)
+                            ->orWhere('email', 'like', $searchTerm);
+                    });
+            });
+        }
+
+        return $query->latest('id')->paginate($perPage)->withQueryString();
     }
 
     public function findOrFail(int $id): Shop

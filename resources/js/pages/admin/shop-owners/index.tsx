@@ -1,7 +1,10 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Pencil, Plus } from 'lucide-react';
+import { useState, type FormEvent } from 'react';
 import ShopOwnerController from '@/actions/App/Http/Controllers/Admin/ShopOwnerController';
+import AdminListToolbar from '@/components/admin-list-toolbar';
 import Heading from '@/components/heading';
+import Pagination, { type PaginationData } from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -14,10 +17,43 @@ import {
 } from '@/components/ui/table';
 import { dashboard } from '@/routes';
 
-type Owner = { id: number; name: string; email: string; shops_count: number };
-type Props = { shopOwners: { data: Owner[] } };
+type Owner = {
+    id: number;
+    name: string;
+    email: string;
+    shops: Array<{ id: number; name: string }>;
+};
+type Props = {
+    shopOwners: PaginationData & { data: Owner[] };
+    search: string;
+};
 
-export default function ShopOwnersIndex({ shopOwners }: Props) {
+export default function ShopOwnersIndex({
+    shopOwners,
+    search: initialSearch,
+}: Props) {
+    const [search, setSearch] = useState(initialSearch);
+
+    const submitSearch = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const query = search.trim();
+
+        router.get(
+            ShopOwnerController.index().url,
+            query ? { search: query } : {},
+            { preserveScroll: true, preserveState: true, replace: true },
+        );
+    };
+
+    const clearSearch = () => {
+        setSearch('');
+        router.get(
+            ShopOwnerController.index().url,
+            {},
+            { preserveScroll: true, preserveState: true, replace: true },
+        );
+    };
+
     return (
         <>
             <Head title="Shop owners" />
@@ -34,6 +70,15 @@ export default function ShopOwnersIndex({ shopOwners }: Props) {
                     </Button>
                 </div>
                 <Card>
+                    <div className="border-b p-4">
+                        <AdminListToolbar
+                            search={search}
+                            placeholder="Search shop owners..."
+                            onSearchChange={setSearch}
+                            onSubmit={submitSearch}
+                            onClear={clearSearch}
+                        />
+                    </div>
                     <CardContent className="p-0">
                         <Table>
                             <TableHeader>
@@ -54,7 +99,19 @@ export default function ShopOwnersIndex({ shopOwners }: Props) {
                                         </TableCell>
                                         <TableCell>{owner.email}</TableCell>
                                         <TableCell>
-                                            {owner.shops_count}
+                                            {owner.shops.length > 0 ? (
+                                                <div className="space-y-1">
+                                                    {owner.shops.map((shop) => (
+                                                        <div key={shop.id}>
+                                                            {shop.name}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span className="text-muted-foreground">
+                                                    No shops
+                                                </span>
+                                            )}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <Button
@@ -81,6 +138,7 @@ export default function ShopOwnersIndex({ shopOwners }: Props) {
                             </p>
                         )}
                     </CardContent>
+                    <Pagination data={shopOwners} />
                 </Card>
             </div>
         </>

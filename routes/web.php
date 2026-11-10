@@ -22,6 +22,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('storefront.shop');
 
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
+        Route::patch('shops/{shop}/toggle-status', [AdminShopController::class, 'toggleStatus'])
+            ->name('shops.toggle-status');
         Route::resource('shops', AdminShopController::class)->except(['show']);
         Route::patch('products/{product}/toggle-status', [AdminProductController::class, 'toggleStatus'])
             ->name('products.toggle-status');

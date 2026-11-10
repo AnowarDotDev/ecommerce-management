@@ -7,20 +7,33 @@ use App\Http\Requests\Admin\StoreShopOwnerRequest;
 use App\Http\Requests\Admin\UpdateShopOwnerRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ShopOwnerController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $search = trim((string) $request->query('search', ''));
+        $query = User::query()
+            ->role('shop_owner')
+            ->with('shops:id,owner_id,name')
+            ->withCount('shops');
+
+        if ($search !== '') {
+            $searchTerm = "%{$search}%";
+
+            $query->where(function ($query) use ($searchTerm): void {
+                $query->where('name', 'like', $searchTerm)
+                    ->orWhere('email', 'like', $searchTerm);
+            });
+        }
+
         return Inertia::render('admin/shop-owners/index', [
-            'shopOwners' => User::query()
-                ->role('shop_owner')
-                ->withCount('shops')
-                ->latest('id')
-                ->paginate(),
+            'shopOwners' => $query->latest('id')->paginate()->withQueryString(),
+            'search' => $search,
         ]);
     }
 

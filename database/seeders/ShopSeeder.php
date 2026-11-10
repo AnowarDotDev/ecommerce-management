@@ -17,16 +17,22 @@ class ShopSeeder extends Seeder
     public function run(): void
     {
         $owners = User::query()->role('shop_owner')->orderBy('id')->limit(10)->get();
-        $logoPaths = $this->downloadShopLogos($owners->count());
+        $shopCount = 12;
 
-        foreach ($owners as $index => $owner) {
-            $number = $index + 1;
+        if ($owners->isEmpty()) {
+            return;
+        }
+
+        $logoPaths = $this->downloadShopLogos($shopCount);
+
+        foreach (range(1, $shopCount) as $number) {
+            $owner = $owners[($number - 1) % $owners->count()];
 
             Shop::factory()->create([
                 'owner_id' => $owner->id,
                 'name' => $number === 1 ? 'Demo Shop' : "Demo Shop {$number}",
                 'slug' => $number === 1 ? 'demo-shop' : "demo-shop-{$number}",
-                'logo' => $logoPaths[$index],
+                'logo' => $logoPaths[$number - 1],
             ]);
         }
     }

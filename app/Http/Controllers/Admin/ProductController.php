@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Product;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -18,9 +19,10 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(ProductRepositoryInterface $products): Response
+    public function index(Request $request, ProductRepositoryInterface $products): Response
     {
-        $paginatedProducts = $products->paginate();
+        $search = trim((string) $request->query('search', ''));
+        $paginatedProducts = $products->paginate(search: $search);
         $paginatedProducts->getCollection()->transform(function (Product $product): Product {
             $product->setAttribute(
                 'thumbnail_url',
@@ -32,7 +34,10 @@ class ProductController extends Controller
             return $product;
         });
 
-        return Inertia::render('admin/products/index', ['products' => $paginatedProducts]);
+        return Inertia::render('admin/products/index', [
+            'products' => $paginatedProducts,
+            'search' => $search,
+        ]);
     }
 
     /**

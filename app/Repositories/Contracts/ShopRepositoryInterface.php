@@ -8,7 +8,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 interface ShopRepositoryInterface
 {
     /** @return LengthAwarePaginator<int, Shop> */
-    public function paginate(int $perPage = 15): LengthAwarePaginator;
+    public function paginate(int $perPage = 15, ?string $search = null): LengthAwarePaginator;
 
     public function findOrFail(int $id): Shop;
 

@@ -9,9 +9,24 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class ProductRepository implements ProductRepositoryInterface
 {
     /** @return LengthAwarePaginator<int, Product> */
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    public function paginate(int $perPage = 15, ?string $search = null): LengthAwarePaginator
     {
-        return Product::query()->with('creator')->latest('id')->paginate($perPage);
+        $query = Product::query()->with('creator');
+
+        if ($search !== null && $search !== '') {
+            $searchTerm = "%{$search}%";
+
+            $query->where(function ($query) use ($searchTerm): void {
+                $query->where('name', 'like', $searchTerm)
+                    ->orWhere('slug', 'like', $searchTerm)
+                    ->orWhereHas('creator', function ($query) use ($searchTerm): void {
+                        $query->where('name', 'like', $searchTerm)
+                            ->orWhere('email', 'like', $searchTerm);
+                    });
+            });
+        }
+
+        return $query->latest('id')->paginate($perPage)->withQueryString();
     }
 
     public function findOrFail(int $id): Product

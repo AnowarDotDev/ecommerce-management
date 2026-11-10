@@ -62,6 +62,91 @@ test('admin can create a shop owner account', function () {
     expect(User::where('email', 'new-owner@example.com')->firstOrFail()->hasRole('shop_owner'))->toBeTrue();
 });
 
+test('admin listing pages support search', function () {
+    $admin = managementUser('admin', 'admin-list-search@example.com');
+    $owner = managementUser('shop_owner', 'owner-list-search@example.com');
+    $targetOwner = managementUser('shop_owner', 'target-owner@example.com');
+    Shop::factory()->create([
+        'owner_id' => $owner->id,
+        'name' => 'Target Shop',
+        'slug' => 'target-shop',
+    ]);
+    Shop::factory()->create([
+        'owner_id' => $targetOwner->id,
+        'name' => 'Target Owner Shop',
+    ]);
+    Product::factory()->create([
+        'created_by' => $admin->id,
+        'name' => 'Target Product',
+        'slug' => 'target-product',
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.shops.index', ['search' => 'Target Shop']))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/shops/index')
+            ->where('search', 'Target Shop')
+            ->has('shops.data', 1)
+            ->where('shops.data.0.name', 'Target Shop'));
+
+    $this->actingAs($admin)
+        ->get(route('admin.products.index', ['search' => 'Target Product']))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/products/index')
+            ->where('search', 'Target Product')
+            ->has('products.data', 1)
+            ->where('products.data.0.name', 'Target Product'));
+
+    $this->actingAs($admin)
+        ->get(route('admin.shop-owners.index', ['search' => 'target-owner@example.com']))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/shop-owners/index')
+            ->where('search', 'target-owner@example.com')
+            ->has('shopOwners.data', 1)
+            ->where('shopOwners.data.0.email', 'target-owner@example.com')
+            ->where('shopOwners.data.0.shops.0.name', 'Target Owner Shop'));
+});
+
+test('admin listings preserve search while paginating', function () {
+    $admin = managementUser('admin', 'admin-list-pagination@example.com');
+    $owner = managementUser('shop_owner', 'owner-list-pagination@example.com');
+
+    Shop::factory(16)->create([
+        'owner_id' => $owner->id,
+        'name' => 'Paginated Shop',
+    ]);
+    Product::factory(16)->create([
+        'created_by' => $admin->id,
+        'name' => 'Paginated Product',
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.shops.index', ['search' => 'Paginated', 'page' => 2]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('search', 'Paginated')
+            ->where('shops.current_page', 2)
+            ->where('shops.total', 16));
+
+    $this->actingAs($admin)
+        ->get(route('admin.products.index', ['search' => 'Paginated', 'page' => 2]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('search', 'Paginated')
+            ->where('products.current_page', 2)
+            ->where('products.total', 16));
+
+    $owners = User::factory(16)->create(['name' => 'Paginated Owner']);
+    $owners->each(function (User $shopOwner): void {
+        $shopOwner->assignRole('shop_owner');
+    });
+
+    $this->actingAs($admin)
+        ->get(route('admin.shop-owners.index', ['search' => 'Paginated Owner', 'page' => 2]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('search', 'Paginated Owner')
+            ->where('shopOwners.current_page', 2)
+            ->where('shopOwners.total', 16));
+});
+
 test('admin product thumbnail is stored safely', function () {
     Storage::fake('public');
     $admin = managementUser('admin', 'admin-image@example.com');
@@ -125,6 +210,33 @@ test('admin can toggle a product status', function () {
 
     $this->assertDatabaseHas('products', [
         'id' => $product->id,
+        'is_active' => true,
+    ]);
+});
+
+test('admin can toggle a shop status', function () {
+    $admin = managementUser('admin', 'admin-shop-toggle@example.com');
+    $owner = managementUser('shop_owner', 'owner-shop-toggle@example.com');
+    $shop = Shop::factory()->create([
+        'owner_id' => $owner->id,
+        'is_active' => true,
+    ]);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.shops.toggle-status', $shop))
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('shops', [
+        'id' => $shop->id,
+        'is_active' => false,
+    ]);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.shops.toggle-status', $shop))
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('shops', [
+        'id' => $shop->id,
         'is_active' => true,
     ]);
 });
