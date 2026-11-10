@@ -13,12 +13,18 @@ class ShopProductSeeder extends Seeder
      */
     public function run(): void
     {
-        $shop = Shop::query()->where('slug', 'demo-shop')->firstOrFail();
+        $products = Product::query()->get();
 
-        $shop->products()->attach(
-            Product::query()->limit(3)->pluck('id')->mapWithKeys(fn (int $productId): array => [
-                $productId => ['price' => fake()->randomFloat(2, 100, 2500)],
-            ])->all(),
-        );
+        Shop::query()->orderBy('id')->each(function (Shop $shop) use ($products): void {
+            $shop->products()->sync(
+                $products->shuffle()->take(min(8, $products->count()))
+                    ->mapWithKeys(fn (Product $product): array => [
+                        $product->id => [
+                            'price' => fake()->randomFloat(2, 100, 2500),
+                            'is_active' => true,
+                        ],
+                    ])->all(),
+            );
+        });
     }
 }
