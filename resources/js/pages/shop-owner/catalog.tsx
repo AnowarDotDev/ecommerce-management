@@ -3,6 +3,7 @@ import { Plus, Store, Trash2 } from 'lucide-react';
 import CatalogController from '@/actions/App/Http/Controllers/ShopOwner/CatalogController';
 import ListingController from '@/actions/App/Http/Controllers/ShopOwner/ListingController';
 import ProductController from '@/actions/App/Http/Controllers/ShopOwner/ProductController';
+import DeleteConfirmation from '@/components/delete-confirmation';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
@@ -179,12 +180,14 @@ export default function Catalog({ shop, products }: Props) {
                                                         >
                                                             Save listing
                                                         </Button>
-                                                        <Link
-                                                            href={ListingController.destroy(
-                                                                product,
-                                                            )}
-                                                            method="delete"
-                                                            as="button"
+                                                        <DeleteConfirmation
+                                                            href={
+                                                                ListingController.destroy(
+                                                                    product,
+                                                                ).url
+                                                            }
+                                                            title={`Remove ${product.name} from your shop?`}
+                                                            description="The product will be removed from your shop listing but remain in the shared catalog."
                                                         >
                                                             <Button
                                                                 type="button"
@@ -193,7 +196,7 @@ export default function Catalog({ shop, products }: Props) {
                                                                 <Trash2 />{' '}
                                                                 Remove
                                                             </Button>
-                                                        </Link>
+                                                        </DeleteConfirmation>
                                                     </div>
                                                 </>
                                             )}

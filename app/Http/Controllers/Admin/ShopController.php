@@ -21,8 +21,18 @@ class ShopController extends Controller
      */
     public function index(ShopRepositoryInterface $shops): Response
     {
+        $paginatedShops = $shops->paginate();
+        $paginatedShops->getCollection()->transform(function (Shop $shop): Shop {
+            $shop->setAttribute(
+                'logo_url',
+                $shop->logo !== null ? Storage::disk('public')->url($shop->logo) : null,
+            );
+
+            return $shop;
+        });
+
         return Inertia::render('admin/shops/index', [
-            'shops' => $shops->paginate(),
+            'shops' => $paginatedShops,
         ]);
     }
 
@@ -66,7 +76,12 @@ class ShopController extends Controller
     public function edit(Shop $shop): Response
     {
         return Inertia::render('admin/shops/edit', [
-            'shop' => $shop,
+            'shop' => tap($shop, function (Shop $shop): void {
+                $shop->setAttribute(
+                    'logo_url',
+                    $shop->logo !== null ? Storage::disk('public')->url($shop->logo) : null,
+                );
+            }),
             'owners' => User::role('shop_owner')->orderBy('name')->get(['id', 'name']),
         ]);
     }

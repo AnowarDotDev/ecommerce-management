@@ -1,5 +1,6 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import ShopController from '@/actions/App/Http/Controllers/Admin/ShopController';
+import OwnerCombobox from '@/components/owner-combobox';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -43,25 +44,13 @@ export default function CreateShop({ owners }: Props) {
                                     </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="owner_id">
-                                            Owner ID
+                                            Shop owner
                                         </Label>
-                                        <Input
-                                            id="owner_id"
+                                        <OwnerCombobox
                                             name="owner_id"
-                                            type="number"
-                                            min="1"
-                                            required
+                                            owners={owners}
                                             defaultValue={owners[0]?.id}
                                         />
-                                        <p className="text-xs text-muted-foreground">
-                                            Available owner:{' '}
-                                            {owners
-                                                .map(
-                                                    (owner) =>
-                                                        `${owner.name} (#${owner.id})`,
-                                                )
-                                                .join(', ')}
-                                        </p>
                                         <InputError message={errors.owner_id} />
                                     </div>
                                     <div className="grid gap-2">

@@ -4,7 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Shop;
 use App\Repositories\Contracts\ShopRepositoryInterface;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ShopRepository implements ShopRepositoryInterface
 {

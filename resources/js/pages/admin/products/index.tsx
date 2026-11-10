@@ -1,10 +1,11 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import ProductController from '@/actions/App/Http/Controllers/Admin/ProductController';
+import DeleteConfirmation from '@/components/delete-confirmation';
 import Heading from '@/components/heading';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import {
     Table,
     TableBody,
@@ -21,6 +22,7 @@ type Product = {
     slug: string;
     base_price: string;
     is_active: boolean;
+    thumbnail_url?: string | null;
     creator: { name: string };
 };
 type Props = { products: { data: Product[] } };
@@ -46,6 +48,7 @@ export default function ProductsIndex({ products }: Props) {
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead>Thumbnail</TableHead>
                                     <TableHead>Product</TableHead>
                                     <TableHead>Creator</TableHead>
                                     <TableHead>Base price</TableHead>
@@ -58,6 +61,19 @@ export default function ProductsIndex({ products }: Props) {
                             <TableBody>
                                 {products.data.map((product) => (
                                     <TableRow key={product.id}>
+                                        <TableCell>
+                                            {product.thumbnail_url ? (
+                                                <img
+                                                    src={product.thumbnail_url}
+                                                    alt={product.name}
+                                                    className="size-12 rounded-md border object-cover"
+                                                />
+                                            ) : (
+                                                <div className="flex size-12 items-center justify-center rounded-md border bg-muted text-xs text-muted-foreground">
+                                                    N/A
+                                                </div>
+                                            )}
+                                        </TableCell>
                                         <TableCell className="font-medium">
                                             {product.name}
                                             <div className="text-xs text-muted-foreground">
@@ -71,17 +87,23 @@ export default function ProductsIndex({ products }: Props) {
                                             ৳ {product.base_price}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge
-                                                variant={
-                                                    product.is_active
-                                                        ? 'default'
-                                                        : 'secondary'
-                                                }
-                                            >
-                                                {product.is_active
-                                                    ? 'Active'
-                                                    : 'Inactive'}
-                                            </Badge>
+                                            <div className="flex items-center gap-2">
+                                                <Switch
+                                                    pressed={product.is_active}
+                                                    aria-label={`${product.is_active ? 'Deactivate' : 'Activate'} ${product.name}`}
+                                                    onPressedChange={() =>
+                                                        router.patch(
+                                                            ProductController.toggleStatus(
+                                                                product,
+                                                            ).url,
+                                                            {},
+                                                            {
+                                                                preserveScroll: true,
+                                                            },
+                                                        )
+                                                    }
+                                                />
+                                            </div>
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">
@@ -98,20 +120,23 @@ export default function ProductsIndex({ products }: Props) {
                                                         <Pencil />
                                                     </Link>
                                                 </Button>
-                                                <Link
-                                                    href={ProductController.destroy(
-                                                        product,
-                                                    )}
-                                                    method="delete"
-                                                    as="button"
+                                                <DeleteConfirmation
+                                                    href={
+                                                        ProductController.destroy(
+                                                            product,
+                                                        ).url
+                                                    }
+                                                    title={`Delete ${product.name}?`}
+                                                    description="This action cannot be undone. The product and its thumbnail will be permanently removed."
                                                 >
                                                     <Button
+                                                        type="button"
                                                         size="icon"
                                                         variant="ghost"
                                                     >
                                                         <Trash2 />
                                                     </Button>
-                                                </Link>
+                                                </DeleteConfirmation>
                                             </div>
                                         </TableCell>
                                     </TableRow>

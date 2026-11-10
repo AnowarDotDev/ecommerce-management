@@ -1,5 +1,6 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import ShopController from '@/actions/App/Http/Controllers/Admin/ShopController';
+import OwnerCombobox from '@/components/owner-combobox';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ type Props = {
         name: string;
         slug: string;
         description?: string | null;
+        logo_url?: string | null;
     };
     owners: { id: number; name: string }[];
 };
@@ -62,24 +64,13 @@ export default function EditShop({ shop, owners }: Props) {
                                     </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="owner_id">
-                                            Owner ID
+                                            Shop owner
                                         </Label>
-                                        <Input
-                                            id="owner_id"
+                                        <OwnerCombobox
                                             name="owner_id"
-                                            type="number"
+                                            owners={owners}
                                             defaultValue={shop.owner_id}
-                                            required
                                         />
-                                        <p className="text-xs text-muted-foreground">
-                                            Available owner:{' '}
-                                            {owners
-                                                .map(
-                                                    (owner) =>
-                                                        `${owner.name} (#${owner.id})`,
-                                                )
-                                                .join(', ')}
-                                        </p>
                                         <InputError message={errors.owner_id} />
                                     </div>
                                     <div className="grid gap-2">
@@ -108,6 +99,22 @@ export default function EditShop({ shop, owners }: Props) {
                                             accept="image/*"
                                         />
                                         <InputError message={errors.logo} />
+                                        {shop.logo_url ? (
+                                            <div className="space-y-2">
+                                                <p className="text-sm font-medium">
+                                                    Current logo
+                                                </p>
+                                                <img
+                                                    src={shop.logo_url}
+                                                    alt={`${shop.name} logo`}
+                                                    className="size-24 rounded-md border object-cover"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <p className="text-xs text-muted-foreground">
+                                                No logo uploaded.
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex gap-3">
                                         <Button disabled={processing}>

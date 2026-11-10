@@ -80,6 +80,32 @@ test('admin product thumbnail is stored safely', function () {
     Storage::disk('public')->assertExists($product->thumbnail_path);
 });
 
+test('admin can toggle a product status', function () {
+    $admin = managementUser('admin', 'admin-toggle@example.com');
+    $product = Product::factory()->create([
+        'created_by' => $admin->id,
+        'is_active' => true,
+    ]);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.products.toggle-status', $product))
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('products', [
+        'id' => $product->id,
+        'is_active' => false,
+    ]);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.products.toggle-status', $product))
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('products', [
+        'id' => $product->id,
+        'is_active' => true,
+    ]);
+});
+
 test('shop owner can list and update a shared catalog product', function () {
     $admin = managementUser('admin', 'admin-catalog@example.com');
     $owner = managementUser('shop_owner', 'owner-catalog@example.com');

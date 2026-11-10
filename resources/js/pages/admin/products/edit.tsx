@@ -16,6 +16,7 @@ type Props = {
         slug: string;
         description?: string | null;
         base_price: string;
+        thumbnail_url?: string | null;
     };
 };
 
@@ -104,6 +105,22 @@ export default function EditProduct({ product }: Props) {
                                         <InputError
                                             message={errors.thumbnail}
                                         />
+                                        {product.thumbnail_url ? (
+                                            <div className="space-y-2">
+                                                <p className="text-sm font-medium">
+                                                    Current thumbnail
+                                                </p>
+                                                <img
+                                                    src={product.thumbnail_url}
+                                                    alt={product.name}
+                                                    className="size-32 rounded-md border object-cover"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <p className="text-xs text-muted-foreground">
+                                                No thumbnail uploaded.
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex gap-3">
                                         <Button disabled={processing}>

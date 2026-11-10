@@ -20,7 +20,19 @@ class ProductController extends Controller
      */
     public function index(ProductRepositoryInterface $products): Response
     {
-        return Inertia::render('admin/products/index', ['products' => $products->paginate()]);
+        $paginatedProducts = $products->paginate();
+        $paginatedProducts->getCollection()->transform(function (Product $product): Product {
+            $product->setAttribute(
+                'thumbnail_url',
+                $product->thumbnail_path !== null
+                    ? Storage::disk('public')->url($product->thumbnail_path)
+                    : null,
+            );
+
+            return $product;
+        });
+
+        return Inertia::render('admin/products/index', ['products' => $paginatedProducts]);
     }
 
     /**
@@ -61,7 +73,35 @@ class ProductController extends Controller
      */
     public function edit(Product $product): Response
     {
-        return Inertia::render('admin/products/edit', ['product' => $product]);
+        return Inertia::render('admin/products/edit', [
+            'product' => tap($product, function (Product $product): void {
+                $product->setAttribute(
+                    'thumbnail_url',
+                    $product->thumbnail_path !== null
+                        ? Storage::disk('public')->url($product->thumbnail_path)
+                        : null,
+                );
+            }),
+        ]);
+    }
+
+    /**
+     * Toggle whether the product is available in the shared catalog.
+     */
+    public function toggleStatus(Product $product, ProductRepositoryInterface $products): RedirectResponse
+    {
+        Gate::authorize('update', $product);
+
+        $products->update($product, ['is_active' => ! $product->is_active]);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => $product->is_active
+                ? 'Product activated successfully.'
+                : 'Product deactivated successfully.',
+        ]);
+
+        return back();
     }
 
     /**
