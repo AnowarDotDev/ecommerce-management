@@ -1,8 +1,10 @@
 <?php
 
+use Database\Seeders\RolePermissionSeeder;
 use Laravel\Fortify\Features;
 
 beforeEach(function () {
+    $this->seed(RolePermissionSeeder::class);
     $this->skipUnlessFortifyHas(Features::registration());
 });
 
@@ -21,5 +23,6 @@ test('new users can register', function () {
     ]);
 
     $this->assertAuthenticated();
+    expect(auth()->user()->hasRole('customer'))->toBeTrue();
     $response->assertRedirect(route('dashboard', absolute: false));
 });

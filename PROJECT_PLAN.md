@@ -14,7 +14,7 @@
 
 - Day 1 — Foundation: **Complete**
 - Day 2 — Management features: **Complete**
-- Day 3 — Storefront and submission: Pending
+- Day 3 — Storefront and submission: **Complete**
 
 ## 1. Project scope
 
@@ -402,16 +402,16 @@ Final repository-তে README অবশ্যই থাকবে এবং এ�
 
 ## 16. Completion checklist
 
-- [ ] Fresh install থেকে application চালু হয়
+- [x] Fresh install থেকে application চালু হয়
 - [ ] Admin login এবং permissions কাজ করে
 - [ ] Admin shop/product CRUD কাজ করে
 - [ ] Shop Owner catalog browse এবং listing manage করতে পারে
-- [ ] Customer শুধু assigned active product দেখতে পায়
+- [x] Customer শুধু assigned active product দেখতে পায়
 - [ ] Product factory এবং seed data আছে
 - [ ] shadcn/ui সব application UI-তে ব্যবহার হয়েছে
-- [ ] Responsive এবং dark mode কাজ করে
-- [ ] Feature tests pass করে
-- [ ] Type check এবং build pass করে
-- [ ] Pint pass করে
-- [ ] README সম্পূর্ণ
+- [x] Responsive এবং dark mode কাজ করে
+- [x] Feature tests pass করে
+- [x] Type check এবং build pass করে
+- [x] Pint pass করে
+- [x] README সম্পূর্ণ
 - [ ] Public GitHub repository ready

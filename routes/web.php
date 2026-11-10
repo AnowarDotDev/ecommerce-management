@@ -6,12 +6,20 @@ use App\Http\Controllers\Admin\ShopOwnerController;
 use App\Http\Controllers\ShopOwner\CatalogController;
 use App\Http\Controllers\ShopOwner\ListingController;
 use App\Http\Controllers\ShopOwner\ProductController as ShopOwnerProductController;
+use App\Http\Controllers\StorefrontController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
+
+    Route::get('shops', [StorefrontController::class, 'index'])
+        ->middleware('permission:view storefront')
+        ->name('storefront.shops');
+    Route::get('shops/{shop}/products', [StorefrontController::class, 'shop'])
+        ->middleware('permission:view storefront')
+        ->name('storefront.shop');
 
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::resource('shops', AdminShopController::class)->except(['show']);

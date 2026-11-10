@@ -6,6 +6,7 @@ use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
     $this->seed(RolePermissionSeeder::class);
@@ -78,6 +79,28 @@ test('admin product thumbnail is stored safely', function () {
 
     expect($product->thumbnail_path)->not->toBeNull();
     Storage::disk('public')->assertExists($product->thumbnail_path);
+});
+
+test('shop owner catalog includes a product thumbnail url', function () {
+    Storage::fake('public');
+    $admin = managementUser('admin', 'admin-catalog-image@example.com');
+    $owner = managementUser('shop_owner', 'owner-catalog-image@example.com');
+    $shop = Shop::factory()->create(['owner_id' => $owner->id]);
+    $product = Product::factory()->create([
+        'created_by' => $admin->id,
+        'thumbnail_path' => 'products/catalog.jpg',
+        'is_active' => true,
+    ]);
+
+    Storage::disk('public')->put('products/catalog.jpg', 'image');
+    $shop->products()->attach($product, ['price' => 125, 'is_active' => true]);
+
+    $this->actingAs($owner)
+        ->get(route('shop-owner.catalog.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('shop-owner/catalog')
+            ->where('products.data.0.thumbnail_url', Storage::disk('public')->url('products/catalog.jpg')));
 });
 
 test('admin can toggle a product status', function () {

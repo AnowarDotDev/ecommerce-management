@@ -33,6 +33,7 @@ type Product = {
     name: string;
     description?: string | null;
     base_price: string;
+    thumbnail_url?: string | null;
     creator: { name: string };
     listings: Listing[];
 };
@@ -61,7 +62,20 @@ export default function Catalog({ shop, products }: Props) {
                     {products.data.map((product) => {
                         const listing = product.listings[0];
                         return (
-                            <Card key={product.id}>
+                            <Card key={product.id} className="h-full">
+                                <div className="aspect-[4/3] overflow-hidden bg-muted">
+                                    {product.thumbnail_url ? (
+                                        <img
+                                            src={product.thumbnail_url}
+                                            alt={product.name}
+                                            className="size-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="flex size-full items-center justify-center text-sm text-muted-foreground">
+                                            No image
+                                        </div>
+                                    )}
+                                </div>
                                 <CardHeader>
                                     <div className="flex items-start justify-between gap-3">
                                         <CardTitle>{product.name}</CardTitle>
@@ -77,7 +91,7 @@ export default function Catalog({ shop, products }: Props) {
                                         Created by {product.creator.name}
                                     </p>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="flex flex-1 flex-col gap-4">
                                     <p className="text-sm text-muted-foreground">
                                         {product.description ||
                                             'No description provided.'}
@@ -206,7 +220,7 @@ export default function Catalog({ shop, products }: Props) {
                                             {...ListingController.store.form(
                                                 product,
                                             )}
-                                            className="grid gap-3"
+                                            className="mt-auto grid gap-3"
                                         >
                                             {({ errors, processing }) => (
                                                 <>
