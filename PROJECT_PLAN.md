@@ -13,7 +13,7 @@
 ## Implementation status
 
 - Day 1 — Foundation: **Complete**
-- Day 2 — Management features: Pending
+- Day 2 — Management features: **Complete**
 - Day 3 — Storefront and submission: Pending
 
 ## 1. Project scope
