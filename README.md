@@ -36,13 +36,15 @@ composer run dev
 
 The seeders create these accounts with the default factory password `password`:
 
-| Role       | Email               | Password   |
-| ---------- | ------------------- | ---------- |
-| Admin      | `admin@example.com` | `password` |
-| Shop Owner | `owner@example.com` | `password` |
+| Role       | Email                  | Password   |
+| ---------- | ---------------------- | ---------- |
+| Admin      | `admin@example.com`    | `password` |
+| Shop Owner | `owner@example.com`    | `password` |
 | Customer   | `customer@example.com` | `password` |
 
 Customer accounts can use the seeded credentials above, or be created through the registration form. Every newly registered user automatically receives the `customer` role after registration and email verification.
+
+The seeders create 10 shop owners, 10 shops with logos, and 50 products with downloaded thumbnails.
 
 ## Customer storefront flow
 

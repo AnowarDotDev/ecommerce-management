@@ -12,9 +12,19 @@ class ShopOwnerSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Shop Owner',
-            'email' => 'owner@example.com',
-        ])->assignRole('shop_owner');
+        $owners = [
+            ['name' => 'Shop Owner', 'email' => 'owner@example.com'],
+        ];
+
+        foreach (range(2, 10) as $number) {
+            $owners[] = [
+                'name' => "Shop Owner {$number}",
+                'email' => "owner{$number}@example.com",
+            ];
+        }
+
+        foreach ($owners as $owner) {
+            User::factory()->create($owner)->assignRole('shop_owner');
+        }
     }
 }
