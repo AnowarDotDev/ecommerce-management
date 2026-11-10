@@ -35,9 +35,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('shop-owner')->name('shop-owner.')->middleware('role:shop_owner')->group(function () {
         Route::get('catalog', [CatalogController::class, 'index'])->name('catalog.index');
+        Route::get('products', [ShopOwnerProductController::class, 'index'])->name('products.index');
         Route::get('products/create', [ShopOwnerProductController::class, 'create'])->name('products.create');
+        Route::get('products/{product}/edit', [ShopOwnerProductController::class, 'edit'])->name('products.edit');
         Route::post('products', [ShopOwnerProductController::class, 'store'])->name('products.store');
         Route::post('catalog/{product}/list', [ListingController::class, 'store'])->name('catalog.list');
+        Route::patch('listings/{product}/toggle-status', [ListingController::class, 'toggleStatus'])->name('listings.toggle-status');
         Route::patch('listings/{product}', [ListingController::class, 'update'])->name('listings.update');
         Route::delete('listings/{product}', [ListingController::class, 'destroy'])->name('listings.destroy');
     });

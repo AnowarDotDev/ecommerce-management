@@ -62,6 +62,22 @@ class ListingController extends Controller
         return back();
     }
 
+    public function toggleStatus(Request $request, Product $product, ShopProductRepositoryInterface $listings): RedirectResponse
+    {
+        $shop = $request->user()->shops()->firstOrFail();
+        $listing = $listings->findOrFail($shop->id, $product->id);
+        Gate::authorize('update', $listing);
+
+        $listings->update($listing, ['is_active' => ! $listing->is_active]);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Product status updated successfully.',
+        ]);
+
+        return back();
+    }
+
     public function destroy(Request $request, Product $product, ShopProductRepositoryInterface $listings): RedirectResponse
     {
         $shop = $request->user()->shops()->firstOrFail();

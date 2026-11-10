@@ -17,6 +17,7 @@ import AdminProductController from '@/actions/App/Http/Controllers/Admin/Product
 import AdminShopController from '@/actions/App/Http/Controllers/Admin/ShopController';
 import AdminShopOwnerController from '@/actions/App/Http/Controllers/Admin/ShopOwnerController';
 import CatalogController from '@/actions/App/Http/Controllers/ShopOwner/CatalogController';
+import ShopOwnerProductController from '@/actions/App/Http/Controllers/ShopOwner/ProductController';
 import StorefrontController from '@/actions/App/Http/Controllers/StorefrontController';
 import type { NavItem } from '@/types';
 
@@ -40,6 +41,11 @@ const adminNavItems: NavItem[] = [
 const shopOwnerNavItems: NavItem[] = [
     dashboardNavItem,
     { title: 'Shared catalog', href: CatalogController.index(), icon: Package },
+    {
+        title: 'My products',
+        href: ShopOwnerProductController.index(),
+        icon: Store,
+    },
 ];
 
 const customerNavItems: NavItem[] = [

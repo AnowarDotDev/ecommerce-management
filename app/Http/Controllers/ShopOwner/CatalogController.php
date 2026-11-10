@@ -16,6 +16,7 @@ class CatalogController extends Controller
         $shop = $request->user()->shops()->firstOrFail();
         $products = Product::query()
             ->where('is_active', true)
+            ->whereDoesntHave('listings', fn ($query) => $query->where('shop_id', $shop->id))
             ->with(['creator:id,name', 'listings' => fn ($query) => $query->where('shop_id', $shop->id)])
             ->latest('id')
             ->paginate(15)
